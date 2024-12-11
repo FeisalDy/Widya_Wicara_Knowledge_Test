@@ -6,7 +6,7 @@ export async function getProfile (): Promise<UserT> {
   const token = await getJWTToken()
 
   try {
-    const res = await fetch(`http://localhost:3333/api/user/profile`, {
+    const res = await fetch(`${process.env.API_URL}/api/user/profile`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -43,7 +43,7 @@ export async function updateUserProfile ({
   const token = await getJWTToken()
 
   try {
-    const res = await fetch('http://localhost:3333/api/user/profile', {
+    const res = await fetch(`${process.env.API_URL}/api/user/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

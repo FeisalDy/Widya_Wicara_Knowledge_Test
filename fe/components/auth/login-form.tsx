@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { setJWTToken } from '@/lib/setJWTToken'
-
+import { useQuery, useMutation } from '@tanstack/react-query'
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required')
@@ -38,17 +38,29 @@ export function LoginForm () {
   const { handleSubmit, register, formState } = form
   const { errors } = formState
 
-  async function onSubmit (values: z.infer<typeof formSchema>) {
-    setErrorMessage(null)
-    try {
-      const { token, error } = await auth(values)
-
+  const {
+    data,
+    mutate: server_loginUser,
+    isPending
+  } = useMutation({
+    mutationFn: (formData: z.infer<typeof formSchema>) => auth(formData),
+    onSuccess: ({ token, error }) => {
       if (token) {
         setJWTToken(token)
         router.push('/')
       } else {
         setErrorMessage(error?.message || 'Login failed')
       }
+    },
+    onError: () => {
+      setErrorMessage('An unexpected error occurred. Please try again.')
+    }
+  })
+
+  async function onSubmit (values: z.infer<typeof formSchema>) {
+    setErrorMessage(null)
+    try {
+      server_loginUser(values)
     } catch (err) {
       setErrorMessage('An unexpected error occurred. Please try again.')
       console.error(err)
@@ -99,7 +111,7 @@ export function LoginForm () {
               {errorMessage}
             </div>
           )}
-          <Button type='submit' className='w-full'>
+          <Button type='submit' className='w-full' disabled={isPending}>
             Login
           </Button>
         </form>

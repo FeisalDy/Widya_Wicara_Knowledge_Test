@@ -16,7 +16,7 @@ export async function getProducts (
 
   try {
     const res = await fetch(
-      `http://localhost:3333/api/product?page=${page}&limit=${limit}`,
+      `${process.env.API_URL}/api/product?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -61,7 +61,7 @@ export async function createProduct ({
   console.log('createProduct is called:', product)
   try {
     const { id, ...rest } = product
-    const res = await fetch('http://localhost:3333/api/product/create', {
+    const res = await fetch(`${process.env.API_URL}/api/product/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export async function updateProduct ({
   try {
     console.log('updateProduct is called:', product)
 
-    const res = await fetch('http://localhost:3333/api/product/update', {
+    const res = await fetch(`${process.env.API_URL}/api/product/update`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ export async function deleteProduct ({ id }: { id: string }) {
   console.log('id:', id)
 
   try {
-    const res = await fetch('http://localhost:3333/api/product/delete', {
+    const res = await fetch(`${process.env.API_URL}/api/product/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

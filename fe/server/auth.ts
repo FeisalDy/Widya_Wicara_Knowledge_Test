@@ -12,7 +12,8 @@ type AuthResponseT = {
 
 export async function auth (body: AuthBodyT): Promise<AuthResponseT> {
   try {
-    const res = await fetch(`http://localhost:3333/api/user/login`, {
+    console.log(`${process.env.API_URL}/api/user/login`)
+    const res = await fetch(`${process.env.API_URL}/api/user/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -55,7 +56,7 @@ export async function registerUser (
   body: RegisterBodyT
 ): Promise<RegisterResponseT> {
   try {
-    const res = await fetch(`http://localhost:3333/api/user/register`, {
+    const res = await fetch(`${process.env.API_URL}/api/user/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
