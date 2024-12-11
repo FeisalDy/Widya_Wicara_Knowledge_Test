@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "src/index.ks",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "build": "express build --output public",
+    "vercel-build": "prisma generate && npm run build"
   },
   "author": "",
   "license": "ISC",
@@ -18,9 +21,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.1.7"
-  },
-  "devDependencies": {
+    "nodemon": "^3.1.7",
     "prisma": "^6.0.1"
-  }
+  },
+  "devDependencies": {}
 }
