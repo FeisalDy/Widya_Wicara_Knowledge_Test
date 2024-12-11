@@ -2,7 +2,7 @@
 import { getJWTToken } from '@/lib/getJWTToken'
 import { DataUserT, UserT } from '@/types/User'
 
-export async function getProfile (): Promise<{ data: UserT }> {
+export async function getProfile (): Promise<UserT> {
   const token = await getJWTToken()
 
   try {
@@ -15,9 +15,8 @@ export async function getProfile (): Promise<{ data: UserT }> {
 
     if (!res.ok) {
       return {
-        data: {
-          error: 'Failed to fetch user profile'
-        }
+        message: 'Failed to fetch profile',
+        error: data.error || 'Failed to fetch profile'
       }
     }
 
@@ -25,9 +24,8 @@ export async function getProfile (): Promise<{ data: UserT }> {
   } catch (error) {
     console.log('Error:', error)
     return {
-      data: {
-        error: 'Network error or server unreachable'
-      }
+      message: 'Network error or server unreachable',
+      error: error as string
     }
   }
 }
@@ -35,7 +33,13 @@ export async function getProfile (): Promise<{ data: UserT }> {
 type UpdateProfilePropsT = {
   profile: Omit<DataUserT, 'id'>
 }
-export async function updateUserProfile ({ profile }: UpdateProfilePropsT) {
+type UpdateProfileResponseT = {
+  message?: string
+  error?: { message: string; error: string }
+}
+export async function updateUserProfile ({
+  profile
+}: UpdateProfilePropsT): Promise<UpdateProfileResponseT> {
   const token = await getJWTToken()
 
   try {
@@ -48,18 +52,34 @@ export async function updateUserProfile ({ profile }: UpdateProfilePropsT) {
       body: JSON.stringify(profile)
     })
 
+    if (!res.ok) {
+      const errorData = await res.json()
+      return {
+        error: {
+          message: errorData.message || 'Failed to update profile',
+          error: errorData.error || 'Failed to update profile'
+        }
+      }
+    }
+
     const data = await res.json()
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to update profile')
+    if (res.status === 400) {
+      return {
+        error: {
+          message: 'Failed to update profile',
+          error: data.error
+        }
+      }
     }
 
     return data
   } catch (error) {
     console.log('Error:', error)
     return {
-      data: {
-        error: 'Network error or server unreachable'
+      error: {
+        message: 'Network error or server unreachable',
+        error: error as string
       }
     }
   }

@@ -1,5 +1,5 @@
 'use server'
-import { ProductT, DataProductT, DataProductPaginationT } from '@/types/Product'
+import { ProductT, DataProductT } from '@/types/Product'
 import { getJWTToken } from '@/lib/getJWTToken'
 
 type getProductParamsT = {
@@ -45,32 +45,60 @@ export async function getProducts (
 }
 
 type createProductParamsT = {
-  product: Omit<DataProductT, 'id'>
+  product: DataProductT
 }
-export async function createProduct ({ product }: createProductParamsT) {
+
+type createProductResponseT = {
+  message?: string
+  error?: { message: string; error: string }
+}
+
+export async function createProduct ({
+  product
+}: createProductParamsT): Promise<createProductResponseT> {
   const token = await getJWTToken()
 
+  console.log('createProduct is called:', product)
   try {
+    const { id, ...rest } = product
     const res = await fetch('http://localhost:3333/api/product/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(product)
+      body: JSON.stringify(rest)
     })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      return {
+        error: {
+          message: errorData.message || 'Failed to create product',
+          error: errorData.error || 'Failed to create product'
+        }
+      }
+    }
 
     const data = await res.json()
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to create product')
+    if (res.status === 400) {
+      return {
+        error: {
+          message: 'Failed to create product',
+          error: data.error
+        }
+      }
     }
 
     return data
   } catch (error) {
     console.log('Error:', error)
     return {
-      error: 'Network error or server unreachable'
+      error: {
+        message: 'Network error or server unreachable',
+        error: error as string
+      }
     }
   }
 }
@@ -79,10 +107,19 @@ type updateProductParamsT = {
   product: DataProductT
 }
 
-export async function updateProduct ({ product }: updateProductParamsT) {
+type updateProductResponseT = {
+  message?: string
+  error?: { message: string; error: string }
+}
+
+export async function updateProduct ({
+  product
+}: updateProductParamsT): Promise<updateProductResponseT> {
   const token = await getJWTToken()
 
   try {
+    console.log('updateProduct is called:', product)
+
     const res = await fetch('http://localhost:3333/api/product/update', {
       method: 'PUT',
       headers: {
@@ -92,17 +129,34 @@ export async function updateProduct ({ product }: updateProductParamsT) {
       body: JSON.stringify(product)
     })
 
+    if (!res.ok) {
+      const errorData = await res.json()
+      return {
+        error: {
+          message: errorData.message || 'Failed to update product',
+          error: errorData.error || 'Failed to update product'
+        }
+      }
+    }
     const data = await res.json()
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to update product')
+    if (res.status === 400) {
+      return {
+        error: {
+          message: 'Failed to update product',
+          error: data.error
+        }
+      }
     }
 
     return data
   } catch (error) {
     console.log('Error:', error)
     return {
-      error: 'Network error or server unreachable'
+      error: {
+        message: 'Network error or server unreachable',
+        error: error as string
+      }
     }
   }
 }

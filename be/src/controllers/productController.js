@@ -6,9 +6,13 @@ const prisma = new PrismaClient()
 export async function createProduct (req, res) {
   const { name, price, category, description } = req.body
 
-  if ((!name || !price, !category, !description)) {
-    return res.status(400).json({ error: 'Name and price are required' })
+  if (!name || price === undefined || !category || !description) {
+    return res.status(400).json({
+      message: 'Failed create new product',
+      error: 'Name, Price, Category or Description is required'
+    })
   }
+
   try {
     const product = await prisma.product.create({
       data: { name, price, category, description }
@@ -72,10 +76,11 @@ export async function getProduct (req, res) {
 export async function updateProduct (req, res) {
   const { id, name, price, category, description } = req.body
 
-  if (!id && !name && !price && !category && !description) {
-    return res
-      .status(400)
-      .json({ error: 'Id, Name, Price, Category or Description is required' })
+  if (!id || !name || !price || !category || !description) {
+    return res.status(400).json({
+      message: 'Failed update product',
+      error: 'Id, Name, Price, Category or Description is required'
+    })
   }
 
   try {

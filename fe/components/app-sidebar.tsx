@@ -16,7 +16,6 @@ import {
 import { NavUser } from '@/components/nav-user'
 import Link from 'next/link'
 
-// This is sample data.
 const data = {
   versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
   navMain: [
@@ -34,12 +33,7 @@ const data = {
         }
       ]
     }
-  ],
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg'
-  }
+  ]
 }
 
 export function AppSidebar ({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -47,7 +41,6 @@ export function AppSidebar ({ ...props }: React.ComponentProps<typeof Sidebar>) 
     <Sidebar {...props}>
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
-        {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map(item => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
@@ -66,7 +59,7 @@ export function AppSidebar ({ ...props }: React.ComponentProps<typeof Sidebar>) 
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

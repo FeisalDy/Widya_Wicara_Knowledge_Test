@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,9 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { updateUserProfile } from '@/server/user'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 
 type ProfileFormPropsT = {
   className?: string
@@ -25,77 +28,99 @@ type ProfileFormPropsT = {
   onOpenChange: (value: boolean) => void
 }
 
-const gender = [
-  {
-    value: 'male',
-    label: 'Male'
-  },
-  {
-    value: 'female',
-    label: 'Female'
-  }
-]
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  gender: z.enum(['male', 'female']).or(z.string().min(1, 'Gender is required'))
+})
+
 export default function ProfileForm ({
   className,
   profile,
   onOpenChange
 }: ProfileFormPropsT) {
   const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const [formData, setFormData] = React.useState<DataUserT>({
-    name: profile?.name || '',
-    email: profile?.email || '',
-    gender: profile?.gender || ''
-  })
-  const [open, setOpen] = React.useState(false)
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }))
-  }
-  const { mutate: server_updateProfile, isPending } = useMutation({
-    mutationFn: (profileData: Omit<DataUserT, 'id'>) =>
-      updateUserProfile({ profile: profileData }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] })
-      onOpenChange(false)
-    },
-    onError: error => {
-      console.error('Error updating profile:', error)
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: profile?.name || '',
+      email: profile?.email || '',
+      gender: profile?.gender || ''
     }
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    server_updateProfile(formData)
+  const { handleSubmit, register, setValue, watch, formState } = form
+  const { errors } = formState
+
+  const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' }
+  ]
+  const gender = watch('gender')
+
+  const {
+    data,
+    mutate: server_updateProfile,
+    isPending
+  } = useMutation({
+    mutationFn: (formData: z.infer<typeof formSchema>) =>
+      updateUserProfile({ profile: formData }),
+    onSuccess: data => {
+      console.log(data)
+      if (data.error) {
+        setErrorMessage(data.error.error || 'An unexpected error occurred.')
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['profile'] })
+        onOpenChange(false)
+      }
+    },
+    onError: error => {
+      setErrorMessage(error.message)
+    }
+  })
+
+  async function onSubmit (values: z.infer<typeof formSchema>) {
+    setErrorMessage(null)
+    try {
+      server_updateProfile(values)
+    } catch (err) {
+      setErrorMessage('An unexpected error occurred. Please try again.')
+      console.error(err)
+    }
   }
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className={cn('grid items-start gap-4', className)}
     >
       <div className='grid gap-2'>
         <Label htmlFor='name'>Name</Label>
         <Input
           id='name'
-          name='name'
-          value={formData.name}
-          onChange={handleInputChange}
-          required
+          placeholder='Your name'
+          {...register('name')}
+          value={watch('name')}
+          className={errors.name ? 'border-red-500' : ''}
         />
+        {errors.name && (
+          <span className='text-sm text-red-500'>{errors.name.message}</span>
+        )}
       </div>
       <div className='grid gap-2'>
         <Label htmlFor='price'>Email</Label>
         <Input
           id='email'
-          name='email'
-          value={formData.email}
-          onChange={handleInputChange}
-          required
+          type='email'
+          placeholder='m@example.com'
+          {...register('email')}
+          className={errors.email ? 'border-red-500' : ''}
         />
+        {errors.email && (
+          <span className='text-sm text-red-500'>{errors.email.message}</span>
+        )}
       </div>
       <div className='grid gap-2'>
         <Label htmlFor='category'>Gender</Label>
@@ -107,8 +132,8 @@ export default function ProfileForm ({
               aria-expanded={open}
               className='justify-between'
             >
-              {formData.gender
-                ? gender.find(g => g.value === formData.gender)?.label
+              {gender
+                ? genderOptions.find(g => g.value === gender)?.label
                 : 'Select your gender...'}
               <ChevronsUpDown className='opacity-50' />
             </Button>
@@ -117,16 +142,12 @@ export default function ProfileForm ({
             <Command>
               <CommandList>
                 <CommandGroup>
-                  {gender.map(g => (
+                  {genderOptions.map(g => (
                     <CommandItem
                       key={g.value}
                       value={g.value}
-                      onSelect={currentValue => {
-                        setFormData(prevState => ({
-                          ...prevState,
-                          gender:
-                            currentValue === formData.gender ? '' : currentValue
-                        }))
+                      onSelect={value => {
+                        setValue('gender', value, { shouldValidate: true })
                         setOpen(false)
                       }}
                     >
@@ -134,9 +155,7 @@ export default function ProfileForm ({
                       <Check
                         className={cn(
                           'ml-auto',
-                          formData.gender === g.value
-                            ? 'opacity-100'
-                            : 'opacity-0'
+                          gender === g.value ? 'opacity-100' : 'opacity-0'
                         )}
                       />
                     </CommandItem>
@@ -147,6 +166,9 @@ export default function ProfileForm ({
           </PopoverContent>
         </Popover>
       </div>
+      {errorMessage && (
+        <div className='text-sm text-red-500 text-center'>{errorMessage}</div>
+      )}
       <Button type='submit' disabled={isPending}>
         Save Changes
       </Button>

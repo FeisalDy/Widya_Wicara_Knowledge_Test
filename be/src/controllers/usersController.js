@@ -75,7 +75,12 @@ export async function updateUser (req, res) {
 
   const isEmailExist = await prisma.user.findUnique({ where: { email } })
   if (isEmailExist && isEmailExist.id !== id) {
-    return res.status(400).json({ message: 'Email already exists' })
+    return res
+      .status(400)
+      .json({
+        message: 'Failed to update profile',
+        error: 'Email already exists'
+      })
   }
 
   try {

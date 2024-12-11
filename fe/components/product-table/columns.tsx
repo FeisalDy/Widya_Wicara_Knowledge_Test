@@ -16,7 +16,6 @@ type ProductColumnsT = {
   onDelete: (product: ProductT) => void
 }
 
-// export const columns: ColumnDef<ProductT>[] = [
 export const ProductTableColumns = ({
   onEdit,
   onDelete

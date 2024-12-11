@@ -1,13 +1,11 @@
 'use client'
-import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
 import {
   Drawer,
@@ -16,8 +14,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger
+  DrawerTitle
 } from '@/components/ui/drawer'
 import { ProductForm } from './form_data'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -63,7 +60,6 @@ export function DrawerDialogProduct ({
         <DrawerHeader className='text-left'>
           <DrawerTitle>Edit product</DrawerTitle>
           <DrawerDescription>
-            {product?.name}
             Make changes to your product here.
           </DrawerDescription>
         </DrawerHeader>

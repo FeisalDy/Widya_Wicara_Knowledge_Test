@@ -89,8 +89,8 @@ export function RegisterForm () {
         setJWTToken(token as string)
       }
     },
-    onError: err => {
-      setErrorMessage(err.message)
+    onError: error => {
+      setErrorMessage(error.message)
     }
   })
 

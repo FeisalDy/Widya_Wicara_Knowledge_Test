@@ -9,6 +9,7 @@ import { Button } from '../ui/button'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteProduct } from '@/server/product'
 import { SearchForm } from '@/components/search-form'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 export function ProductTable () {
   const queryClient = useQueryClient()
@@ -64,7 +65,11 @@ export function ProductTable () {
   }, [data, searchTerm])
 
   if (isPending) {
-    return <div>Loading...</div>
+    return (
+      <div className='flex items-center justify-center h-full w-full'>
+        <LoadingSpinner size={64} className='animate-spin text-primary' />
+      </div>
+    )
   }
 
   if (isError) {

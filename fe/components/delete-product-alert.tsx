@@ -23,7 +23,6 @@ export function DeleteProductAlert ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        {/* <Button variant='outline'>Show Dialog</Button> */}
         <Button variant='ghost' className='hidden' />
       </AlertDialogTrigger>
       <AlertDialogContent>

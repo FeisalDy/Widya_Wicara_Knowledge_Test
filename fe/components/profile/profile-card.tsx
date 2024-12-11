@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button'
 import { getProfile } from '@/server/user'
 import { useQuery } from '@tanstack/react-query'
 import { DrawerDialogProfile } from '@/components/profile/profile-drawer'
-import { useState, useCallback, useMemo } from 'react'
-import { DataUserT } from '@/types/User'
+import { useState, useCallback } from 'react'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 export default function ProfileComponent () {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
@@ -21,7 +21,11 @@ export default function ProfileComponent () {
   }, [])
 
   if (isPending) {
-    return <div>Loading...</div>
+    return (
+      <div className='flex items-center justify-center h-full w-full'>
+        <LoadingSpinner size={64} className='animate-spin text-primary' />
+      </div>
+    )
   }
 
   if (isError) {
@@ -39,12 +43,12 @@ export default function ProfileComponent () {
             <div className='flex items-center gap-2'>
               <Avatar>
                 <AvatarImage
-                  src='https://github.com/shadcn.png'
-                  alt='@shadcn'
+                  src='https://i.pravatar.cc/300'
+                  alt={data.data?.name}
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              <p>{data.data?.name}</p>
+              <p className='capitalize'>{data.data?.name}</p>
             </div>
           </div>
           <div className='basis-1/3 flex justify-end'>
@@ -55,18 +59,18 @@ export default function ProfileComponent () {
         <div className='flex flex-row'>
           <div className='basis-1/3'>Email Adress</div>
           <div className='basis-2/3 first-letter:capitalize'>
-            {data.data.email}
+            {data?.data?.email}
           </div>
         </div>
         <Separator className='my-4' />
         <div className='flex flex-row'>
           <div className='basis-1/3'>Gender</div>
-          <div className='basis-2/3 capitalize'>{data.data.gender}</div>
+          <div className='basis-2/3 capitalize'>{data?.data?.gender}</div>
         </div>
       </div>
 
       <DrawerDialogProfile
-        profile={data.data}
+        profile={data?.data || {}}
         isOpen={isDialogOpen}
         onOpenChange={value => {
           setIsDialogOpen(value)

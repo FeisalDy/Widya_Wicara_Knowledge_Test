@@ -32,19 +32,19 @@ export default function DataTableRowActions<TData> ({
   onEdit,
   onDelete
 }: DataTableRowActions<TData>) {
-  const [isAlertOpen, setIsAlertOpen] = useState(false) // State to control the alert dialog
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
 
   const handleDeleteClick = () => {
-    setIsAlertOpen(true) // Open the alert dialog
+    setIsAlertOpen(true)
   }
 
   const handleConfirmDelete = () => {
-    onDelete(row.original) // Call the onDelete function when confirmed
-    setIsAlertOpen(false) // Close the alert dialog
+    onDelete(row.original)
+    setIsAlertOpen(false)
   }
 
   const handleCancelDelete = () => {
-    setIsAlertOpen(false) // Close the alert dialog if canceled
+    setIsAlertOpen(false)
   }
 
   return (
