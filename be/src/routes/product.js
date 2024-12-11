@@ -14,8 +14,5 @@ router.get('/', authenticate, getProducts)
 router.get('/:id', authenticate, getProduct)
 router.put('/update', authenticate, updateProduct)
 router.delete('/delete', authenticate, deleteProduct)
-// router.post('/login', loginUser)
-// router.get('/users', getUsers)
-// router.get('/user', getUser)
 
 export default router

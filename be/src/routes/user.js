@@ -12,7 +12,5 @@ router.post('/register', createUser)
 router.post('/login', loginUser)
 router.get('/profile', authenticate, getProfile)
 router.put('/profile', authenticate, updateUser)
-// router.get('/users', getUsers)
-// router.get('/user', getUser)
 
 export default router
